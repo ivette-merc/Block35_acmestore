@@ -68,25 +68,37 @@ const fetchProduct = async () => {
   const response = await client.query(SQL);
   return response.rows;
 };
-//REVIEW THIS CODE 
-const fetchFavorites = async () => {
-//   const SQL = /*SQL*/ `
-//     SELECT * from favorites where user_id='${user_id}';
-//     `;
-//   const response = await client.query(SQL);
-//   return response.rows;
-
-const SQL = /*SQL*/ `
-    SELECT * from favorites;
+//REVIEW THIS CODE
+const fetchFavorites = async (user_id) => {
+  console.log(user_id);
+  const SQL = /*SQL*/ `
+    SELECT * from favorites where user_id=$1
     `;
-const response = await client.query(SQL);
-return response.rows;
+  const response = await client.query(SQL, [user_id]);
+  return response.rows;
 };
+// const SQL = /*SQL*/ `
+//     SELECT * from favorites;
+//     `;
+// const response = await client.query(SQL);
+// return response.rows;
+
 //WHY IS RESPONSE AND SQL GREYED OUT?
-const destroyFavorites = async ({user_id, product_id}) => {
-    const SQl =/*SQL*/ ` DELETE * from favorites WHERE user_id='${user_id}' AND product_id='${product_id}'`;
-    const response = await client.query(SQL);
-}
+// const destroyFavorites = async ( user_id, product_id ) => {
+//   const SQl = /*SQL*/ ` DELETE from favorites WHERE user_id=$1 AND product_id=$2`;
+//   const response = await client.query(SQL, [user_id, product_id]);
+// };
+
+const destroyFavorites = async (user_id, id) => {
+  const SQL = `DELETE FROM favorites WHERE user_id=$1 AND id=$2`;
+  try {
+    const response = await client.query(SQL, [user_id, id]);
+    return response; // Return response if needed
+  } catch (error) {
+    console.error("Error deleting favorites:", error);
+    throw error; // Throw error if needed
+  }
+};
 
 const seed = async () => {
   await Promise.all([
@@ -132,7 +144,7 @@ const seed = async () => {
       product_id: products[4].id,
     }),
   ]);
-  console.log('favorites created:', await fetchFavorites());
+  console.log("favorites created:", await fetchFavorites(users[0].id));
 };
 
 module.exports = {
